@@ -13,31 +13,28 @@ router.post("/signup", (req, res) => {
     if (err) throw err;
     console.log("MySQL connected!");
 
-    try {
-      // Check username is already existed or not
-      var selectSql = `SELECT username FROM Users WHERE username = '${username}'`;
+    // Check username is already existed or not
+    var selectSql = `SELECT username FROM Users WHERE username = '${username}'`;
 
-      connection.query(selectSql, function (err, result) {
-        // If not exist
-        if (_.isEmpty(result)) {
-          // Insert to database
-          var insertSql = `INSERT INTO Users (username, password, fullname) VALUES ('${username}', '${password}', '${fullname}')`;
+    connection.query(selectSql, function (error, result) {
+      // If not exist
+      if (_.isEmpty(result)) {
+        // Insert to database
+        var insertSql = `INSERT INTO Users (username, password, fullname) VALUES ('${username}', '${password}', '${fullname}')`;
 
-          connection.query(insertSql, function (err, result) {
-            // Done with sign up
-            console.log("An account is registered");
-            res.status(200).send("Created");
-          });
-        } else {
-          // There is a similar username exists
-          console.log("There is already this username");
-          res.status(422).send("username exists");
-        }
-      })
-    } finally {
-      if (err) throw err;
+        connection.query(insertSql, () => {
+          // Done with sign up
+          console.log("An account is registered");
+          res.status(200).send("Created");
+        });
+      } else {
+        // There is a similar username exists
+        console.log("There is already this username");
+        res.status(422).send("username exists");
+      }
       connection.release();
-    }
+      if (error) throw error;
+    })
   });
 });
 
