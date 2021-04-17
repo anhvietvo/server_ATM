@@ -1,5 +1,6 @@
 const express = require("express");
-const db = require("../database/mysql");
+const pool = require("../database/mysql");
+const jwt = require("jsonwebtoken");
 
 const _ = require("lodash");
 
@@ -9,33 +10,30 @@ const router = express.Router();
 router.post("/signup", (req, res) => {
   const { username, password, fullname } = req.body;
 
-  db.getConnection(function (err, connection) {
-    if (err) throw err;
-    console.log("MySQL connected!");
-
-    // Check username is already existed or not
-    var selectSql = `SELECT username FROM Users WHERE username = '${username}'`;
-
-    connection.query(selectSql, function (error, result) {
-      // If not exist
-      if (_.isEmpty(result)) {
+  // Check name in database
+  pool.query(
+    `SELECT username FROM Users WHERE username = '${username}'`,
+    function (err, rows) {
+      if (err) throw err;
+      if (_.isEmpty(rows)) {
         // Insert to database
-        var insertSql = `INSERT INTO Users (username, password, fullname) VALUES ('${username}', '${password}', '${fullname}')`;
+        pool.query(
+          `INSERT INTO Users (username, password, fullname) VALUES ('${username}', '${password}', '${fullname}')`,
+          function (err, rows) {
+            if (err) throw err;
 
-        connection.query(insertSql, () => {
-          // Done with sign up
-          console.log("An account is registered");
-          res.status(200).send("Created");
-        });
+            console.log("An account is created");
+            const token = jwt.sign({ username }, "MY_SECRET_KEY");
+            res.send({ token });
+          }
+        );
       } else {
         // There is a similar username exists
         console.log("There is already this username");
         res.status(422).send("username exists");
       }
-      connection.release();
-      if (error) throw error;
-    })
-  });
+    }
+  );
 });
 
 module.exports = router;

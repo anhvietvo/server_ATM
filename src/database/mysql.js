@@ -1,10 +1,10 @@
-const mysql = require('mysql');
+const mysql = require("mysql2");
 
-const connection = mysql.createPool({
+const pool = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "password",
-  database: "Android_Task_Monitoring"
+  database: "Android_Task_Monitoring",
 });
 
-module.exports = connection;
+module.exports = pool;
