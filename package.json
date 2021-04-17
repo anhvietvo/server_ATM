@@ -1,15 +1,18 @@
 {
   "name": "serverAndDB",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   },
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.7"
   }
