@@ -20,19 +20,4 @@ module.exports = (req, res, next) => {
     req.data = rows[0];
     next();
   })
-
-  //function runSql(username) {
-    //db.getConnection(function (err, connection) {
-      //if (err) throw err;
-
-      //var selectSql = `SELECT * FROM Users WHERE username = '${username}'`;
-      //connection.query(selectSql, function (error, result) {
-        //req = result[0];
-
-        //connection.release();
-        //if (error) throw error;
-      //});
-    //});
-    //return req
-  //}
 };
