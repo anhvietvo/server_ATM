@@ -48,6 +48,7 @@ router.post("/signup", (req, res) => {
 
 // Login
 router.post("/signin", (req, res) => {
+  console.log(req.body);
   const { username, password } = req.body;
   // If don't input username and password
   if (!username || !password) {
