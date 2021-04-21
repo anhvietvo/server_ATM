@@ -31,8 +31,8 @@ router.post("/signup", (req, res) => {
                 if (err) throw err;
 
                 console.log("An account is created");
-                const token = jwt.sign({ username }, "MY_SECRET_KEY");
-                res.send({ token });
+                //const token = jwt.sign({ username }, "MY_SECRET_KEY");
+                res.status(200).send("Create successfully");
               }
             );
           })
