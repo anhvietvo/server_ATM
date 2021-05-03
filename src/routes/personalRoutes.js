@@ -4,6 +4,19 @@ const pool = require("../database/mysql");
 const _ = require("lodash");
 
 const router = express.Router();
+
+router.post("/personal", (req, res) => {
+  const { username } = req.body;
+
+  pool.query(
+    `SELECT * FROM PersonalTasks WHERE owner = '${username}'`,
+    function (err, rows) {
+      if (err) throw err;
+      res.status(200).send(rows);
+    }
+  );
+});
+
 router.post("/personal/add", (req, res) => {
   const {
     PTID,
