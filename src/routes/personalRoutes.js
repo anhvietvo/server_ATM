@@ -39,4 +39,18 @@ router.post("/personal/add", (req, res) => {
   );
 });
 
+router.post("/personal/edit", (req, res) => {
+  const { PTID, status } = req.body;
+
+  // Update status of task
+  pool.query(
+    `UPDATE PersonalTasks SET status = '${status}' WHERE PTID = '${PTID}'`,
+    function (err, rows) {
+      if (err) throw err;
+      console.log(`Update status of ${PTID} to ${status}`);
+      res.status(200).send("Update status successfully");
+    }
+  );
+});
+
 module.exports = router;
