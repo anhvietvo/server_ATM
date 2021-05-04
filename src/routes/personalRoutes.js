@@ -52,6 +52,17 @@ router.post("/personal/add", (req, res) => {
   );
 });
 
+router.post("/personal/delete", (req, res) => {
+  const { PTID } = req.body;
+  
+  // Delete task from db
+  pool.query(`DELETE FROM PersonalTasks WHERE PTID = '${PTID}'`, (err, rows) => {
+    if (err) throw err;
+    console.log(`A personal task ${PTID} is deleted`);
+    res.status(200).send("Delete succesfully");
+  })
+})
+
 router.post("/personal/edit", (req, res) => {
   const { PTID, status } = req.body;
 
