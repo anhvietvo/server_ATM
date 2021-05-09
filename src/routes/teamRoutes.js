@@ -30,4 +30,17 @@ router.post("/team/add", (req, res) => {
   );
 });
 
+router.post("/team", (req, res) => {
+  const { username } = req.body;
+
+  // Get the list of team which user join in
+  pool.query(
+    `SELECT * FROM Teams WHERE manager = '${username}'`,
+    function (err, rows) {
+      if (err) throw err;
+      res.status(200).send(rows);
+    }
+  )
+})
+
 module.exports = router;
