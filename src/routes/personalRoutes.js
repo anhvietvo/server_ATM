@@ -27,7 +27,8 @@ router.post("/personal/add", (req, res) => {
     finishDate,
     finishTime,
     status,
-    username,
+    owner
+    //username,
   } = req.body;
 
   // Check id in db
@@ -37,7 +38,7 @@ router.post("/personal/add", (req, res) => {
       if (err) throw err;
       if (_.isEmpty(rows)) {
         pool.query(
-          `INSERT INTO PersonalTasks (PTID, title, details, startDate, startTime, finishDate, finishTime, status, owner) VALUES ('${PTID}', '${title}', '${details}','${startDate}', '${startTime}', '${finishDate}', '${finishTime}', '${status}', '${username}')`,
+          `INSERT INTO PersonalTasks (PTID, title, details, startDate, startTime, finishDate, finishTime, status, owner) VALUES ('${PTID}', '${title}', '${details}','${startDate}', '${startTime}', '${finishDate}', '${finishTime}', '${status}', '${owner}')`,
           function (err, rows) {
             if (err) throw err;
             console.log("A personal task is added");

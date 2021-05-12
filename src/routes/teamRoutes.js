@@ -101,4 +101,40 @@ router.post("/team/employees", function (req, res) {
   );
 });
 
+// Add new task
+router.post("/team/task/add", function (req, res) {
+  const {
+    TTID,
+    TID,
+    title,
+    details,
+    startDate,
+    startTime,
+    finishDate,
+    finishTime,
+    status,
+  } = req.body;
+
+  // Check id in db
+  pool.query(
+    `SELECT TTID From TeamTasks WHERE TTID = '${TTID}'`,
+    function (err, rows) {
+      if (err) throw err;
+      if (_.isEmpty(rows)) {
+        pool.query(
+          `INSERT INTO TeamTasks (TTID, TID, title, details, startDate, startTime, finishDate, finishTime, status) VALUES (${TTID},  ${TID}, '${title}', '${details}','${startDate}', '${startTime}', '${finishDate}', '${finishTime}', '${status}')`,
+          function (err, rows) {
+            if (err) throw err;
+            console.log("A team task is added");
+            res.status(200).send("Add team task successfully");
+          }
+        );
+      } else {
+        console.log("There is already this team task id");
+        res.status(400).send("TTID exists");
+      }
+    }
+  );
+});
+
 module.exports = router;
