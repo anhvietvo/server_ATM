@@ -137,4 +137,21 @@ router.post("/team/task/add", function (req, res) {
   );
 });
 
+// Allocate task to user
+router.post("/team/task/allocate", function (req, res) {
+  const { username, TTID } = req.body;
+
+  // Add to Participants-Schema
+  pool.query(
+    `INSERT INTO Participants (TTID, username) VALUES (${TTID}, '${username}')`,
+    function (err) {
+      if (err) throw err;
+      console.log("Allocated successfully");
+      res
+        .status(200)
+        .send(`Allocated task ${TTID} to ${username} successfully`);
+    }
+  );
+});
+
 module.exports = router;
