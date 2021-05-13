@@ -179,4 +179,32 @@ router.post("/team/task", function (req, res) {
   );
 });
 
+// Update Status
+router.post("/team/task/edit", function (req, res) {
+  const { TTID, status } = req.body;
+
+  pool.query(
+    `UPDATE TeamTasks SET status = ${status}  WHERE TTID = ${TTID}`,
+    function (err, rows) {
+      if (err) throw err;
+      console.log(`Update status of team task ${TTID} to ${status}`);
+      res.status(200).send("Update status team task successfully");
+    }
+  );
+});
+
+router.post("/team/task/delete", (req, res) => {
+  const { TTID } = req.body;
+
+  // Delete task from db
+  pool.query(
+    `DELETE FROM TeamTasks WHERE TTID = ${TTID}`,
+    function (err, rows) {
+      if (err) throw err;
+      console.log(`A team task ${TTID} is deleted`);
+      res.status(200).send("Delete team task succesfully");
+    }
+  );
+});
+
 module.exports = router;
