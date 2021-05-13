@@ -154,4 +154,29 @@ router.post("/team/task/allocate", function (req, res) {
   );
 });
 
+// Load Team task
+router.post("/team/task", function (req, res) {
+  const { username, TID } = req.body;
+
+  // Load task for manager will load all task in team
+  if (!username) {
+    return pool.query(
+      `SELECT * FROM TeamTasks WHERE TID = ${TID}`,
+      function (err, rows) {
+        if (err) throw err;
+        console.log("Load Team for manager successfully");
+        res.status(200).send(rows);
+      }
+    );
+  }
+  return pool.query(
+    `SELECT TeamTasks.* FROM TeamTasks INNER JOIN Participants ON TeamTasks.TTID = Participants.TTID WHERE Participants.username = '${username}' AND TeamTasks.TID = ${TID}; `,
+    function (err, rows) {
+      if (err) throw err;
+      console.log("Load Team successfully");
+      res.status(200).send(rows);
+    }
+  );
+});
+
 module.exports = router;
