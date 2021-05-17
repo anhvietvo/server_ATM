@@ -164,7 +164,7 @@ router.post("/team/task", function (req, res) {
       `SELECT * FROM TeamTasks WHERE TID = ${TID}`,
       function (err, rows) {
         if (err) throw err;
-        console.log("Load Team for manager successfully");
+        console.log("Load team tasks for manager successfully");
         res.status(200).send(rows);
       }
     );
@@ -173,7 +173,7 @@ router.post("/team/task", function (req, res) {
     `SELECT TeamTasks.* FROM TeamTasks INNER JOIN Participants ON TeamTasks.TTID = Participants.TTID WHERE Participants.username = '${username}' AND TeamTasks.TID = ${TID}; `,
     function (err, rows) {
       if (err) throw err;
-      console.log("Load Team successfully");
+      console.log("Load team tasks for members successfully");
       res.status(200).send(rows);
     }
   );
@@ -207,4 +207,17 @@ router.post("/team/task/delete", (req, res) => {
   );
 });
 
+router.post("/team/task/getAllocate", (req, res) => {
+  const { TTID } = req.body;
+
+  // Get the users who do this task TTID
+  pool.query(
+    `SELECT username FROM Participants WHERE TTID = ${TTID}`,
+    function (err, rows) {
+      if (err) throw err;
+      console.log("Get list of participants successfully");
+      res.status(200).send(rows);
+    }
+  );
+});
 module.exports = router;
