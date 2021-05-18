@@ -15,7 +15,7 @@ app.use(teamRoutes);
 const PORT = 3000;
 
 app.get("/", requireAuth, (req, res) => {
-  res.send(req.data.username);
+  res.send(req.data);
 });
 
 app.listen(PORT, () => {

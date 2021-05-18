@@ -35,8 +35,8 @@ router.post("/signup", (req, res) => {
                 res.status(200).send("Create successfully");
               }
             );
-          })
-        }) 
+          });
+        });
       } else {
         // There is a similar username exists
         console.log("There is already this username");
@@ -52,7 +52,9 @@ router.post("/signin", (req, res) => {
   const { username, password } = req.body;
   // If don't input username and password
   if (!username || !password) {
-    return res.status(422).send({error: "Must provide username and password"});
+    return res
+      .status(422)
+      .send({ error: "Must provide username and password" });
   }
   pool.query(
     `SELECT username FROM Users WHERE username = '${username}'`,
@@ -60,26 +62,49 @@ router.post("/signin", (req, res) => {
       // If username does not exists
       if (err) throw err;
       if (_.isEmpty(rows)) {
-        return res.status(404).send({ error: "Username not found"});
+        return res.status(404).send({ error: "Username not found" });
       }
 
       // Check password
       pool.query(
-        `SELECT password FROM Users WHERE username = '${username}'`,
+        `SELECT password, fullname FROM Users WHERE username = '${username}'`,
         function (err, rows) {
           if (err) throw err;
           bcrypt.compare(password, rows[0].password, (err, isMatch) => {
             if (err) throw err;
             if (isMatch) {
               const token = jwt.sign({ username }, "MY_SECRET_KEY");
-              return res.send({ token });
+              return res.send({ token, fullname: rows[0].fullname });
             }
-            res.status(422).send({ error: "Invalid username or password" })
-          })
+            res.status(422).send({ error: "Invalid username or password" });
+          });
         }
-      )
+      );
     }
   );
-})
+});
+
+// Update password
+router.post("/password", (req, res) => {
+  const { username, newPass } = req.body;
+  // Hash new password
+  bcrypt.genSalt(10, (err, salt) => {
+    if (err) throw err;
+    bcrypt.hash(newPass, salt, (err, hash) => {
+      if (err) throw err;
+      const hashPassword = hash;
+
+      // Update to db
+      pool.query(
+        `UPDATE Users SET password = '${hashPassword}' WHERE username = '${username}'`,
+        function (err) {
+          if (err) throw err;
+          console.log("Update password successfully");
+          res.status(200).send("Update password successfully");
+        }
+      );
+    });
+  });
+});
 
 module.exports = router;
