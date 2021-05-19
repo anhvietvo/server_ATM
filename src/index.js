@@ -19,5 +19,5 @@ app.get("/", requireAuth, (req, res) => {
 });
 
 app.listen(process.env.PORT || PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+  console.log("App is listening ...");
 });
