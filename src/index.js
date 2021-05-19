@@ -18,6 +18,6 @@ app.get("/", requireAuth, (req, res) => {
   res.send(req.data);
 });
 
-app.listen(PORT, () => {
+app.listen(process.env.PORT || PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
