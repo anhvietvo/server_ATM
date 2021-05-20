@@ -6,10 +6,10 @@ const _ = require("lodash");
 const router = express.Router();
 
 router.post("/personal", (req, res) => {
-  const { username } = req.body;
+  const { UID } = req.body;
 
   pool.query(
-    `SELECT * FROM PersonalTasks WHERE owner = '${username}'`,
+    `SELECT * FROM PersonalTasks WHERE owner = ${UID}`,
     function (err, rows) {
       if (err) throw err;
       res.status(200).send(rows);
@@ -38,7 +38,7 @@ router.post("/personal/add", (req, res) => {
       if (err) throw err;
       if (_.isEmpty(rows)) {
         pool.query(
-          `INSERT INTO PersonalTasks (PTID, title, details, startDate, startTime, finishDate, finishTime, status, owner) VALUES ('${PTID}', '${title}', '${details}','${startDate}', '${startTime}', '${finishDate}', '${finishTime}', '${status}', '${owner}')`,
+          `INSERT INTO PersonalTasks (PTID, title, details, startDate, startTime, finishDate, finishTime, status, owner) VALUES ('${PTID}', '${title}', '${details}','${startDate}', '${startTime}', '${finishDate}', '${finishTime}', '${status}', ${owner})`,
           function (err, rows) {
             if (err) throw err;
             console.log("A personal task is added");
@@ -57,7 +57,7 @@ router.post("/personal/delete", (req, res) => {
   const { PTID } = req.body;
   
   // Delete task from db
-  pool.query(`DELETE FROM PersonalTasks WHERE PTID = '${PTID}'`, (err, rows) => {
+  pool.query(`DELETE FROM PersonalTasks WHERE PTID = ${PTID}`, (err, rows) => {
     if (err) throw err;
     console.log(`A personal task ${PTID} is deleted`);
     res.status(200).send("Delete succesfully");
@@ -69,7 +69,7 @@ router.post("/personal/edit", (req, res) => {
 
   // Update status of task
   pool.query(
-    `UPDATE PersonalTasks SET status = '${status}' WHERE PTID = '${PTID}'`,
+    `UPDATE PersonalTasks SET status = ${status} WHERE PTID = ${PTID}`,
     function (err, rows) {
       if (err) throw err;
       console.log(`Update status of ${PTID} to ${status}`);

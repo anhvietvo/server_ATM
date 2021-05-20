@@ -15,7 +15,7 @@ router.post("/team/add", (req, res) => {
     if (_.isEmpty(rows)) {
       // Insert new team in Teams-schema
       pool.query(
-        `INSERT INTO Teams (TID, name, details, manager) VALUES (${TID}, '${name}', '${details}', '${manager}')`,
+        `INSERT INTO Teams (TID, name, details, manager) VALUES (${TID}, '${name}', '${details}', ${manager})`,
         function (err, rows) {
           if (err) throw err;
           console.log("A new team is created");
@@ -25,7 +25,7 @@ router.post("/team/add", (req, res) => {
 
       // Insert this manager and this team to Employees-schema
       pool.query(
-        `INSERT INTO Employees (TID, username) VALUES (${TID}, '${manager}')`,
+        `INSERT INTO Employees (TID, UID) VALUES (${TID}, ${manager})`,
         function (err, rows) {
           if (err) throw err;
           console.log("This username is added into Employees table");
@@ -42,11 +42,11 @@ router.post("/team/add", (req, res) => {
 
 // Get the list of team which user join in
 router.post("/team", (req, res) => {
-  const { username } = req.body;
+  const { UID } = req.body;
 
   pool.query(
     // Search this username in 2 tables Teams and Employees
-    `SELECT Teams.* FROM Teams INNER JOIN Employees ON Teams.TID = Employees.TID WHERE Employees.username = '${username}'`,
+    `SELECT Teams.* FROM Teams INNER JOIN Employees ON Teams.TID = Employees.TID WHERE Employees.UID = ${UID}`,
     function (err, rows) {
       if (err) throw err;
       res.status(200).send(rows);
@@ -60,22 +60,23 @@ router.post("/team/user", (req, res) => {
 
   // check user existed or not
   pool.query(
-    `SELECT username FROM Users WHERE username = '${username}'`,
+    `SELECT UID FROM Users WHERE username = '${username}'`,
     function (err, rows) {
       if (err) throw err;
       if (_.isEmpty(rows)) {
         return res.status(404).send("Not found this username");
       }
       // If this username existed -> check is added to this team before or not
+      const UID = rows[0].UID;
       pool.query(
-        `SELECT * FROM Employees WHERE username = '${username}' AND TID = '${TID}'`,
+        `SELECT * FROM Employees WHERE UID = ${UID} AND TID = ${TID}`,
         function (err, rows) {
           if (err) throw err;
           // If this username is not added to this team -> Now add to
           // Employees-schema
           if (_.isEmpty(rows)) {
             return pool.query(
-              `INSERT INTO Employees (username, TID) VALUES ('${username}', ${TID})`,
+              `INSERT INTO Employees (UID, TID) VALUES (${UID}, ${TID})`,
               function (err, rows) {
                 if (err) throw err;
                 return res.status(200).send(`${username} is added`);
@@ -93,7 +94,7 @@ router.post("/team/user", (req, res) => {
 router.post("/team/employees", function (req, res) {
   const { TID } = req.body;
   pool.query(
-    `SELECT username FROM Employees WHERE TID = '${TID}'`,
+    `SELECT username, Users.UID FROM Users INNER JOIN Employees ON Users.UID = Employees.UID WHERE TID = ${TID}`,
     function (err, rows) {
       if (err) throw err;
       return res.status(200).send(rows);
@@ -139,27 +140,27 @@ router.post("/team/task/add", function (req, res) {
 
 // Allocate task to user
 router.post("/team/task/allocate", function (req, res) {
-  const { username, TTID } = req.body;
+  const { UID, TTID } = req.body;
 
   // Add to Participants-Schema
   pool.query(
-    `INSERT INTO Participants (TTID, username) VALUES (${TTID}, '${username}')`,
+    `INSERT INTO Participants (TTID, UID) VALUES (${TTID}, ${UID})`,
     function (err) {
       if (err) throw err;
       console.log("Allocated successfully");
       res
         .status(200)
-        .send(`Allocated task ${TTID} to ${username} successfully`);
+        .send(`Allocated task ${TTID} to user ${UID} successfully`);
     }
   );
 });
 
 // Load Team task
 router.post("/team/task", function (req, res) {
-  const { username, TID } = req.body;
+  const { UID, TID } = req.body;
 
   // Load task for manager will load all task in team
-  if (!username) {
+  if (!UID) {
     return pool.query(
       `SELECT * FROM TeamTasks WHERE TID = ${TID}`,
       function (err, rows) {
@@ -170,7 +171,7 @@ router.post("/team/task", function (req, res) {
     );
   }
   return pool.query(
-    `SELECT TeamTasks.* FROM TeamTasks INNER JOIN Participants ON TeamTasks.TTID = Participants.TTID WHERE Participants.username = '${username}' AND TeamTasks.TID = ${TID}; `,
+    `SELECT TeamTasks.* FROM TeamTasks INNER JOIN Participants ON TeamTasks.TTID = Participants.TTID WHERE Participants.UID = ${UID} AND TeamTasks.TID = ${TID}; `,
     function (err, rows) {
       if (err) throw err;
       console.log("Load team tasks for members successfully");
@@ -212,7 +213,7 @@ router.post("/team/task/getAllocate", (req, res) => {
 
   // Get the users who do this task TTID
   pool.query(
-    `SELECT username FROM Participants WHERE TTID = ${TTID}`,
+    `SELECT Users.UID, username FROM Users INNER JOIN Participants ON Users.UID = Participants.UID WHERE TTID = ${TTID}`,
     function (err, rows) {
       if (err) throw err;
       console.log("Get list of participants successfully");

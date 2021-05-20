@@ -15,7 +15,7 @@ module.exports = (req, res, next) => {
       return res.status(401).send({ error: "You must be logged in" });
     }
     const promisePool = pool.promise();
-    const [ rows, fields ] = await promisePool.query(`SELECT username, fullname FROM Users WHERE username = '${payload.username}'`) 
+    const [ rows, fields ] = await promisePool.query(`SELECT username, fullname, UID FROM Users WHERE username = '${payload.username}'`) 
 
     req.data = rows[0];
     next();

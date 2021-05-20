@@ -67,14 +67,14 @@ router.post("/signin", (req, res) => {
 
       // Check password
       pool.query(
-        `SELECT password, fullname FROM Users WHERE username = '${username}'`,
+        `SELECT password, fullname, UID FROM Users WHERE username = '${username}'`,
         function (err, rows) {
           if (err) throw err;
           bcrypt.compare(password, rows[0].password, (err, isMatch) => {
             if (err) throw err;
             if (isMatch) {
               const token = jwt.sign({ username }, "MY_SECRET_KEY");
-              return res.send({ token, fullname: rows[0].fullname });
+              return res.send({ token, fullname: rows[0].fullname, UID: rows[0].UID });
             }
             res.status(422).send({ error: "Invalid username or password" });
           });
@@ -86,7 +86,7 @@ router.post("/signin", (req, res) => {
 
 // Update password
 router.post("/password", (req, res) => {
-  const { username, newPass } = req.body;
+  const { UID, newPass } = req.body;
   // Hash new password
   bcrypt.genSalt(10, (err, salt) => {
     if (err) throw err;
@@ -96,7 +96,7 @@ router.post("/password", (req, res) => {
 
       // Update to db
       pool.query(
-        `UPDATE Users SET password = '${hashPassword}' WHERE username = '${username}'`,
+        `UPDATE Users SET password = '${hashPassword}' WHERE UID = ${UID}`,
         function (err) {
           if (err) throw err;
           console.log("Update password successfully");
